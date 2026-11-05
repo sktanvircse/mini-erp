@@ -5,11 +5,41 @@
  *   --reset  Drops and re-creates all tables from schema.sql first
  */
 
-$dbHost = '127.0.0.1';
-$dbPort = 3306;
-$dbName = 'mini_erp';
-$dbUser = 'root';
-$dbPass = '';
+$dbUrl = getenv('DATABASE_URL') ?: getenv('MYSQL_URL');
+if ($dbUrl && str_starts_with($dbUrl, 'mysql://')) {
+    $parts = parse_url($dbUrl);
+    $dbHost = $parts['host'] ?? '127.0.0.1';
+    $dbPort = (int)($parts['port'] ?? 3306);
+    $dbUser = $parts['user'] ?? 'root';
+    $dbPass = $parts['pass'] ?? '';
+    $dbName = ltrim($parts['path'] ?? 'mini_erp', '/');
+} else {
+    $dbHost = getenv('DB_HOST') ?: (getenv('MYSQLHOST') ?: '127.0.0.1');
+    $dbPort = (int)(getenv('DB_PORT') ?: (getenv('MYSQLPORT') ?: 3306));
+    $dbName = getenv('DB_DATABASE') ?: (getenv('MYSQLDATABASE') ?: 'mini_erp');
+    $dbUser = getenv('DB_USERNAME') ?: (getenv('MYSQLUSER') ?: 'root');
+    $dbPass = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : (getenv('MYSQLPASSWORD') ?: '');
+}
+
+// Check backend/.env if local
+$envFile = __DIR__ . '/../backend/.env';
+if (file_exists($envFile)) {
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        $line = trim($line);
+        if ($line === '' || str_starts_with($line, '#')) continue;
+        if (str_contains($line, '=')) {
+            [$k, $v] = explode('=', $line, 2);
+            $k = trim($k);
+            $v = trim($v, " \t\n\r\0\x0B\"'");
+            if ($k === 'DB_HOST' && empty(getenv('DB_HOST')) && empty(getenv('MYSQLHOST'))) $dbHost = $v;
+            if ($k === 'DB_PORT' && empty(getenv('DB_PORT')) && empty(getenv('MYSQLPORT'))) $dbPort = (int)$v;
+            if ($k === 'DB_DATABASE' && empty(getenv('DB_DATABASE')) && empty(getenv('MYSQLDATABASE'))) $dbName = $v;
+            if ($k === 'DB_USERNAME' && empty(getenv('DB_USERNAME')) && empty(getenv('MYSQLUSER'))) $dbUser = $v;
+            if ($k === 'DB_PASSWORD' && getenv('DB_PASSWORD') === false && getenv('MYSQLPASSWORD') === false) $dbPass = $v;
+        }
+    }
+}
 
 $baseDir = __DIR__;
 
