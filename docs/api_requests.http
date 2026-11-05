@@ -1,0 +1,169 @@
+### Mini ERP API Sample HTTP Requests
+
+@baseUrl = http://localhost:8000/api
+@token = {{login.response.body.data.token}}
+
+### 1. Health Check
+GET {{baseUrl}}/health
+
+### 2. Login as Admin
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@minierp.com",
+  "password": "Admin@123"
+}
+
+### 3. Get Authenticated User Profile
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+
+### 4. Dashboard Summary
+GET {{baseUrl}}/dashboard/summary
+Authorization: Bearer {{token}}
+
+### 5. Products List
+GET {{baseUrl}}/products?page=1&per_page=15
+Authorization: Bearer {{token}}
+
+### 6. Create Product
+POST {{baseUrl}}/products
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "code": "PRD-TEST-100",
+  "name": "Wireless Noise Cancelling Headphones",
+  "category_id": 1,
+  "unit_id": 1,
+  "cost_price": 75.0,
+  "sale_price": 129.0,
+  "reorder_level": 5,
+  "opening_stock": 20,
+  "warehouse_id": 1
+}
+
+### 7. Inventory Stock Balances
+GET {{baseUrl}}/inventory/balances
+Authorization: Bearer {{token}}
+
+### 8. Low Stock Report
+GET {{baseUrl}}/inventory/low-stock
+Authorization: Bearer {{token}}
+
+### 9. Create Purchase Order
+POST {{baseUrl}}/purchase-orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "supplier_id": 1,
+  "date": "2026-11-04",
+  "remarks": "Urgent stock replenishment",
+  "items": [
+    {
+      "product_id": 1,
+      "quantity": 10,
+      "unit_price": 650.0
+    }
+  ]
+}
+
+### 10. Create and Approve Goods Receipt (GRN)
+POST {{baseUrl}}/goods-receipts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "supplier_id": 1,
+  "warehouse_id": 1,
+  "date": "2026-11-04",
+  "remarks": "Received in good condition",
+  "items": [
+    {
+      "product_id": 1,
+      "quantity": 10,
+      "unit_price": 650.0
+    }
+  ]
+}
+
+### 11. Create Sales Order
+POST {{baseUrl}}/sales-orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "customer_id": 1,
+  "date": "2026-11-04",
+  "items": [
+    {
+      "product_id": 1,
+      "quantity": 2,
+      "unit_price": 899.0
+    }
+  ]
+}
+
+### 12. Create Delivery
+POST {{baseUrl}}/deliveries
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "customer_id": 1,
+  "warehouse_id": 1,
+  "date": "2026-11-04",
+  "items": [
+    {
+      "product_id": 1,
+      "quantity": 2,
+      "unit_price": 899.0
+    }
+  ]
+}
+
+### 13. Create Sales Invoice
+POST {{baseUrl}}/invoices
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "customer_id": 1,
+  "date": "2026-11-04",
+  "items": [
+    {
+      "product_id": 1,
+      "quantity": 2,
+      "unit_price": 899.0
+    }
+  ]
+}
+
+### 14. Record Money Receipt
+POST {{baseUrl}}/money-receipts
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "customer_id": 1,
+  "date": "2026-11-04",
+  "payment_method": "bank",
+  "deposit_account_id": 3,
+  "amount": 1798.0,
+  "reference_no": "TXN-9847291"
+}
+
+### 15. Trial Balance Report
+GET {{baseUrl}}/reports/trial-balance?as_of_date=2026-11-04
+Authorization: Bearer {{token}}
+
+### 16. Profit & Loss Statement
+GET {{baseUrl}}/reports/profit-loss?start_date=2026-01-01&end_date=2026-12-31
+Authorization: Bearer {{token}}
+
+### 17. Balance Sheet Report
+GET {{baseUrl}}/reports/balance-sheet?as_of_date=2026-11-04
+Authorization: Bearer {{token}}
