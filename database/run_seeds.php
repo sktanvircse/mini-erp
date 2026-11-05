@@ -46,11 +46,19 @@ $baseDir = __DIR__;
 // Check for --reset flag
 $reset = in_array('--reset', $argv ?? []);
 
+$options = [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+];
+$useSsl = getenv('MYSQL_SSL') === 'true' || getenv('DB_SSL') === 'true' || (isset($parts['query']) && str_contains($parts['query'], 'ssl')) || $dbPort == 4000;
+if ($useSsl) {
+    $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+}
+
 try {
     $pdo = new PDO(
         "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4",
         $dbUser, $dbPass,
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        $options
     );
     echo "✓ Connected to database: {$dbName}\n\n";
 

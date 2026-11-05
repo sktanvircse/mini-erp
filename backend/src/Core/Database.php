@@ -38,6 +38,12 @@ class Database
                 PDO::ATTR_EMULATE_PREPARES => false,
             ];
 
+            // Enable SSL support for cloud databases (TiDB Cloud, Aiven, etc.)
+            $useSsl = Env::get('MYSQL_SSL') === 'true' || Env::get('DB_SSL') === 'true' || (isset($parts['query']) && str_contains($parts['query'], 'ssl')) || $port == 4000;
+            if ($useSsl) {
+                $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+            }
+
             try {
                 self::$instance = new PDO($dsn, $user, $pass, $options);
             } catch (PDOException $e) {
